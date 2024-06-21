@@ -1,0 +1,53 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model MasterKey {
+  createdAt DateTime @default(now())
+  createdBy String?
+  id        String   @id @default(cuid())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  value     String?
+}
+
+model Password {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  label     String?
+  updatedAt DateTime @updatedAt
+  value     String?
+  vault     Vault?   @relation(fields: [vaultId], references: [id])
+  vaultId   String?
+}
+
+model Vault {
+  createdAt DateTime   @default(now())
+  id        String     @id @default(cuid())
+  name      String?
+  ownedBy   String?
+  passwords Password[]
+  updatedAt DateTime   @updatedAt
+  user      User?      @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  createdAt  DateTime    @default(now())
+  email      String?     @unique
+  firstName  String?
+  id         String      @id @default(cuid())
+  lastName   String?
+  masterKeys MasterKey[]
+  password   String
+  roles      Json
+  updatedAt  DateTime    @updatedAt
+  username   String      @unique
+  vaults     Vault[]
+}
